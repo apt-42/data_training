@@ -9,5 +9,5 @@ conda create --name ENV_NAME python=PYTHON_VERSION # create env
 conda activate ENV_NAME # activate env
 # Install required tools in your env
 conda install --file requirements.txt
-source deactivate # deactivate env
+conda deactivate # deactivate env
 ```
