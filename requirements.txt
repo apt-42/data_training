@@ -4,5 +4,6 @@ scikit-learn-intelex
 pandas
 matplotlib
 seaborn
+plotly
 jupyter
 jupyterlab
