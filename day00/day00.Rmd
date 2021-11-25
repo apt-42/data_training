@@ -1,0 +1,125 @@
+---
+title: "Day00"
+output:
+  html_document:
+    df_print: paged
+  html_notebook: default
+  pdf_document: default
+---
+
+J'importe 2 packages :
+
+- tidyverse qui est un meta package pour faire plein de manipulations utiles pour la data science
+- plotly qui permet de generer des figures interactives
+
+On peut se permettre d'ignorer les messages pour le moment, ca concerne des conflits de nom entre differents packages mais c'est pas important.
+
+```{r}
+library(tidyverse)
+library(plotly)
+```
+
+Je charge les données.
+
+```{r}
+df = read_csv("https://raw.githubusercontent.com/apt-42/data_training/main/day00/data.csv")
+head(df)
+```
+
+J'ai initialement fais l'analyse en prenant en compte les 3 variables des données :
+
+- longitude
+- latitude
+- altitude
+
+J'arrive au meme flag en utilisant 2 methodes differentes :
+
+- Une graphique
+- Une numerique (car si les données deviennent trop grande, ca peut etre tres long de generer des figures)
+
+# Methode graphique avec 3 variables
+
+```{r}
+fig = plot_ly(df, 
+              x = ~longitude, 
+              y = ~latitude, 
+              z = ~altitude, 
+              hoverinfo = 'text', 
+              text = ~timestamp)
+fig
+```
+
+On voit qu'il y a un point assez extreme a une altitude assez basse.
+
+En utilisant l'hover, je peux determiner que la date etait :
+
+**2021-08-19 a 11h12**
+
+# Methode numerique avec 3 variables
+
+L'idée ici est de mesurer la distance de tous les points entre eux.
+
+Une fois qu'on a la distance d'un point par rapport a tous les autres points, selectionne la distance la plus proche de chaque point.
+
+On obtient donc un vecteur contenant, pour chaque point, la distance au point le plus proche.
+
+On regarde ensuite quel point est le plus eloigné.
+
+```{r}
+distances = dist(df[-1]) %>%
+  as.matrix()
+diag(distances) = NA
+distanceToClosest = c()
+for (r in 1:nrow(distances)) {
+  mini = min(distances[r,], na.rm = TRUE)
+  distanceToClosest = c(distanceToClosest, mini)
+}
+df %>% 
+  dplyr::mutate(distanceToClosest = distanceToClosest) %>%
+  dplyr::arrange(desc(distanceToClosest)) %>%
+  head()
+```
+
+On peut donc determiner que le point le plus extreme (flag?) est :
+
+**2021-08-19 a 11h12**
+
+# Methode graphique avec 2 variables
+
+Meme logique qu'au dessus avec 2 variables
+
+```{r}
+fig = plot_ly(df, 
+              x = ~longitude, 
+              y = ~latitude, 
+              hoverinfo = 'text', 
+              text = ~timestamp)
+fig
+```
+
+On peut determiner que le flag est :
+
+**2021-08-04 a 23h04**
+
+# Methode numerique avec 2 variables
+
+Meme logique qu'au dessus avec 2 variables
+
+```{r}
+distances = dist(df[-c(1, 4)]) %>%
+  as.matrix()
+diag(distances) = NA
+distanceToClosest = c()
+for (r in 1:nrow(distances)) {
+  mini = min(distances[r,], na.rm = TRUE)
+  distanceToClosest = c(distanceToClosest, mini)
+}
+df %>% 
+  dplyr::mutate(distanceToClosest = distanceToClosest) %>%
+  dplyr::arrange(desc(distanceToClosest)) %>%
+  head()
+```
+
+On peut donc determiner que le point le plus extreme (flag?) est :
+
+**2021-08-04 a 23h04**
